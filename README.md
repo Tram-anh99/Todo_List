@@ -1,6 +1,6 @@
-# Todo List
+# Goal Planner & Todo List
 
-Mini Todo App xây dựng bằng React, TypeScript và Vite.
+Ứng dụng quản lý mục tiêu và công việc cá nhân, xây dựng bằng React, TypeScript và Vite.
 
 ## Chức năng
 
@@ -10,6 +10,19 @@ Mini Todo App xây dựng bằng React, TypeScript và Vite.
 - Thống kê tổng quan và xóa các việc đã hoàn thành
 - Lưu dữ liệu và giao diện sáng/tối bằng `localStorage`
 - Responsive cho desktop, tablet và mobile
+- Dashboard theo dõi mục tiêu năm, quý, tháng và tuần
+- Mục tiêu phân cấp và tự động tổng hợp tiến độ từ mục tiêu con, Todo
+- Kế hoạch tuần, cảnh báo trễ hạn và biểu đồ tiến độ
+- Liên kết từng Todo với mục tiêu cụ thể
+
+## Công nghệ
+
+- React 19 và TypeScript
+- Vite
+- Lucide React
+- CSS responsive và SVG/CSS chart
+- Local Storage
+- ESLint
 
 ## Chạy project
 
