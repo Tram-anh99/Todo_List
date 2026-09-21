@@ -19,6 +19,7 @@
 - Mỗi tab chỉ hiển thị đúng cấp mục tiêu năm, quý, tháng, tuần hoặc ngày
 - Theo dõi thêm mục tiêu Ngày trong chuỗi Năm → Quý → Tháng → Tuần → Ngày
 - Biểu đồ chính của thời điểm được đặt đầu tiên, mục tiêu cấp nhỏ hơn hiển thị chi tiết bên dưới
+- Mục tiêu con bắt buộc liên kết với đúng cấp cha liền kề; tiến độ chỉ tổng hợp qua liên kết cha–con
 
 ## Công nghệ
 
