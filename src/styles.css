@@ -155,10 +155,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .goal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
 .goal-card { padding: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: 0 8px 28px rgba(30, 56, 41, .055); }
 .goal-card-top, .goal-footer, .progress-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.goal-footer { flex-wrap: wrap; }
 .goal-badges { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .goal-card h3 { margin: 13px 0 7px; font-size: 1rem; }
 .goal-description { min-height: 34px; margin: 0 0 8px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
 .parent-goal { display: flex; align-items: center; gap: 3px; margin: 6px 0; color: var(--muted); font-size: .7rem; }
+.parent-goal.missing-link { color: var(--danger); font-weight: 700; }
 .progress-row { margin-top: 14px; color: var(--muted); font-size: .72rem; }
 .progress-row strong { color: var(--text); }
 .progress-track { height: 7px; overflow: hidden; margin: 7px 0 13px; border-radius: 999px; background: var(--surface-soft); }
@@ -206,7 +208,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .period-detail-card ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
 .period-detail-card li { display: flex; align-items: flex-start; gap: 6px; min-width: 0; color: var(--muted); font-size: .7rem; line-height: 1.35; }
 .period-detail-card li svg { flex: 0 0 auto; margin-top: 1px; color: var(--accent); }
-.period-detail-card li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.period-detail-card li > span { display: grid; min-width: 0; gap: 2px; }
+.period-detail-card li b { overflow: hidden; color: var(--text); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.period-detail-card li small { overflow: hidden; color: var(--muted); font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
 .period-detail-card .more-items { color: var(--accent); font-weight: 700; }
 
 @media (max-width: 700px) {

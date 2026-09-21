@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Check, X } from 'lucide-react'
 import type { Goal, GoalArea, GoalDraft, GoalPeriod, GoalStatus } from '../types/goal'
-import { areaLabels, getDeadlineMeta, getGoalPeriodRange, getISOWeek, periodLabels, statusLabels } from '../utils/goalUtils'
+import { areaLabels, getDeadlineMeta, getGoalPeriodRange, getISOWeek, isEligibleGoalParent, parentPeriod, periodLabels, statusLabels } from '../utils/goalUtils'
 import { formatDate } from '../utils/todoUtils'
 
 interface Props {
@@ -25,6 +25,13 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
   const [error, setError] = useState('')
   const periodRange = getGoalPeriodRange(draft)
   const deadlineMeta = getDeadlineMeta(draft)
+  const parentContext: GoalDraft = {
+    ...draft,
+    quarter: draft.period === 'year' ? undefined : (draft.quarter ?? Math.ceil((draft.month ?? 1) / 3)),
+    month: ['month', 'week', 'day'].includes(draft.period) ? (draft.month ?? 1) : undefined,
+    week: ['week', 'day'].includes(draft.period) ? (draft.week ?? 1) : undefined,
+  }
+  const parentCandidates = goals.filter((goal) => goal.id !== initial?.id && isEligibleGoalParent(parentContext, goal))
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -34,6 +41,14 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
       month: ['month', 'week', 'day'].includes(draft.period) ? (draft.month ?? 1) : undefined,
       week: ['week', 'day'].includes(draft.period) ? (draft.week ?? 1) : undefined,
       day: draft.period === 'day' ? (draft.day || `${draft.year}-01-01`) : undefined,
+      parentId: draft.period === 'year' ? undefined : draft.parentId,
+    }
+    if (normalized.period !== 'year') {
+      const selectedParent = goals.find((goal) => goal.id === normalized.parentId)
+      if (!selectedParent || !isEligibleGoalParent(normalized, selectedParent)) {
+        setError(`Vui lòng chọn mục tiêu cha cấp ${periodLabels[parentPeriod[normalized.period]!]} phù hợp.`)
+        return
+      }
     }
     if (!onSave(normalized)) {
       setError('Vui lòng nhập tên mục tiêu.')
@@ -58,40 +73,41 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
           </select>
         </label>
         <label>Cấp kế hoạch
-          <select value={draft.period} onChange={(e) => setDraft({ ...draft, period: e.target.value as GoalPeriod })}>
+          <select value={draft.period} onChange={(e) => setDraft({ ...draft, period: e.target.value as GoalPeriod, parentId: '' })}>
             {Object.entries(periodLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </label>
         <label>Năm
-          <input type="number" min="2020" max="2100" value={draft.year} onChange={(e) => setDraft({ ...draft, year: Number(e.target.value) })} />
+          <input type="number" min="2020" max="2100" value={draft.year} onChange={(e) => setDraft({ ...draft, year: Number(e.target.value), parentId: '' })} />
         </label>
         {draft.period !== 'year' && <label>Quý
-          <select value={draft.quarter || 1} onChange={(e) => setDraft({ ...draft, quarter: Number(e.target.value) })}>
+          <select value={draft.quarter || 1} onChange={(e) => setDraft({ ...draft, quarter: Number(e.target.value), parentId: '' })}>
             {[1, 2, 3, 4].map((value) => <option key={value} value={value}>Quý {value}</option>)}
           </select>
         </label>}
         {['month', 'week', 'day'].includes(draft.period) && <label>Tháng
-          <select value={draft.month || 1} onChange={(e) => setDraft({ ...draft, month: Number(e.target.value), quarter: Math.ceil(Number(e.target.value) / 3) })}>
+          <select value={draft.month || 1} onChange={(e) => setDraft({ ...draft, month: Number(e.target.value), quarter: Math.ceil(Number(e.target.value) / 3), parentId: '' })}>
             {Array.from({ length: 12 }, (_, index) => index + 1).map((value) => <option key={value} value={value}>Tháng {value}</option>)}
           </select>
         </label>}
         {['week', 'day'].includes(draft.period) && <label>Tuần trong năm
-          <input type="number" min="1" max="53" value={draft.week || 1} onChange={(e) => setDraft({ ...draft, week: Number(e.target.value) })} />
+          <input type="number" min="1" max="53" value={draft.week || 1} onChange={(e) => setDraft({ ...draft, week: Number(e.target.value), parentId: '' })} />
         </label>}
         {draft.period === 'day' && <label>Ngày mục tiêu
           <input type="date" value={draft.day || ''} onChange={(e) => {
             const day = e.target.value
             if (!day) return setDraft({ ...draft, day: '' })
             const selectedMonth = Number(day.slice(5, 7))
-            setDraft({ ...draft, day, dueDate: day, year: Number(day.slice(0, 4)), month: selectedMonth, quarter: Math.ceil(selectedMonth / 3), week: getISOWeek(day) })
+            setDraft({ ...draft, day, dueDate: day, year: Number(day.slice(0, 4)), month: selectedMonth, quarter: Math.ceil(selectedMonth / 3), week: getISOWeek(day), parentId: '' })
           }} />
         </label>}
-        <label>Mục tiêu cha
+        {draft.period !== 'year' && <label>Mục tiêu cha bắt buộc
           <select value={draft.parentId || ''} onChange={(e) => setDraft({ ...draft, parentId: e.target.value })}>
-            <option value="">Không có</option>
-            {goals.filter((goal) => goal.id !== initial?.id).map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
+            <option value="">Chọn mục tiêu {periodLabels[parentPeriod[draft.period]!]}</option>
+            {parentCandidates.map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
           </select>
-        </label>
+          {!parentCandidates.length && <small className="field-warning">Chưa có mục tiêu {periodLabels[parentPeriod[draft.period]!].toLowerCase()} phù hợp. Hãy tạo mục tiêu cha trước.</small>}
+        </label>}
         <label>Trạng thái
           <select value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as GoalStatus })}>
             {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}

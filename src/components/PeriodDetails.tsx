@@ -14,9 +14,10 @@ interface Props {
   subtitle: string
   groups: PeriodDetailGroup[]
   getProgress: (goal: Goal) => number
+  getParent: (goal: Goal) => Goal | undefined
 }
 
-export function PeriodDetails({ title, subtitle, groups, getProgress }: Props) {
+export function PeriodDetails({ title, subtitle, groups, getProgress, getParent }: Props) {
   return (
     <section className="panel period-details">
       <div className="section-heading"><div><h2>{title}</h2><p>{subtitle}</p></div></div>
@@ -32,7 +33,10 @@ export function PeriodDetails({ title, subtitle, groups, getProgress }: Props) {
               <div className="period-detail-head"><strong>{group.label}</strong><span>{itemCount ? `${progress}%` : 'Chưa có'}</span></div>
               <div className="progress-track"><span style={{ width: `${progress}%` }} /></div>
               <ul>
-                {group.goals.slice(0, 4).map((goal) => <li key={goal.id}>{getProgress(goal) === 100 ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span>{goal.title}</span></li>)}
+                {group.goals.slice(0, 4).map((goal) => {
+                  const parent = getParent(goal)
+                  return <li key={goal.id}>{getProgress(goal) === 100 ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span><b>{goal.title}</b><small>{parent ? `Thuộc: ${parent.title}` : 'Chưa liên kết mục tiêu cha'}</small></span></li>
+                })}
                 {(group.todos || []).slice(0, 4).map((todo) => <li key={todo.id}>{todo.completed ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span>{todo.title}</span></li>)}
                 {!itemCount && <li className="muted-item">Chưa có mục tiêu chi tiết.</li>}
                 {itemCount > 4 && <li className="more-items">+{itemCount - 4} mục khác</li>}

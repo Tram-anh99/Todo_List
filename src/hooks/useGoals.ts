@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import type { Goal, GoalDraft } from '../types/goal'
+import { autoLinkGoalHierarchy } from '../utils/goalUtils'
 
 const STORAGE_KEY = 'my-tasks.goals.v1'
 
 function loadGoals(): Goal[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
+    return stored ? autoLinkGoalHierarchy(JSON.parse(stored)) : []
   } catch {
     return []
   }

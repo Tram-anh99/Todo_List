@@ -15,6 +15,30 @@ export function getGoalProgress(goalId: string, goals: Goal[], todos: Todo[], vi
   return Math.round(units.reduce((sum, value) => sum + value, 0) / units.length)
 }
 
+export const parentPeriod = {
+  year: null,
+  quarter: 'year',
+  month: 'quarter',
+  week: 'month',
+  day: 'week',
+} as const
+
+export function isEligibleGoalParent(child: Goal | GoalDraft, parent: Goal) {
+  if (parent.period !== parentPeriod[child.period] || parent.year !== child.year) return false
+  if (child.period === 'month') return parent.quarter === child.quarter
+  if (child.period === 'week') return parent.month === child.month
+  if (child.period === 'day') return parent.week === child.week
+  return true
+}
+
+export function autoLinkGoalHierarchy(goals: Goal[]) {
+  return goals.map((goal) => {
+    if (goal.period === 'year' || goal.parentId) return goal
+    const candidates = goals.filter((parent) => parent.id !== goal.id && isEligibleGoalParent(goal, parent))
+    return candidates.length === 1 ? { ...goal, parentId: candidates[0].id } : goal
+  })
+}
+
 export function getGoalQuarter(goal: Goal) {
   if (goal.quarter) return goal.quarter
   if (goal.month) return Math.ceil(goal.month / 3)
