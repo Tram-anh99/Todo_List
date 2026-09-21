@@ -16,6 +16,7 @@ export interface Goal {
   status: GoalStatus
   priority: 'low' | 'medium' | 'high'
   dueDate?: string
+  completedAt?: string
   createdAt: string
   updatedAt?: string
 }

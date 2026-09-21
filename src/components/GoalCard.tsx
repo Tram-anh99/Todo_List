@@ -1,6 +1,6 @@
-import { CalendarDays, ChevronRight, Pencil, Trash2 } from 'lucide-react'
+import { CalendarDays, ChevronRight, Clock3, Pencil, Trash2 } from 'lucide-react'
 import type { Goal } from '../types/goal'
-import { areaLabels, isGoalOverdue, periodLabels, statusLabels } from '../utils/goalUtils'
+import { areaLabels, getDeadlineMeta, periodLabels, statusLabels } from '../utils/goalUtils'
 import { formatDate } from '../utils/todoUtils'
 
 interface Props {
@@ -13,7 +13,9 @@ interface Props {
 }
 
 export function GoalCard({ goal, progress, parent, taskCount, onEdit, onDelete }: Props) {
-  const overdue = isGoalOverdue(goal, progress)
+  const deadlineMeta = getDeadlineMeta(goal)
+  const countdownText = progress === 100 && !goal.completedAt ? 'Đã hoàn thành' : deadlineMeta.countdown
+  const countdownTone = progress === 100 && !goal.completedAt ? 'success' : deadlineMeta.tone
   return (
     <article className="goal-card">
       <div className="goal-card-top">
@@ -32,10 +34,12 @@ export function GoalCard({ goal, progress, parent, taskCount, onEdit, onDelete }
       {parent && <p className="parent-goal"><ChevronRight size={14} /> Thuộc: {parent.title}</p>}
       <div className="progress-row"><span>Tiến độ</span><strong>{progress}%</strong></div>
       <div className="progress-track"><span style={{ width: `${progress}%` }} /></div>
+      {deadlineMeta.periodNote && <p className={deadlineMeta.periodNote.startsWith('Cảnh báo') ? 'deadline-period-note warning' : 'deadline-period-note'}>{deadlineMeta.periodNote}</p>}
       <div className="goal-footer">
         <span>{taskCount} công việc</span>
-        {goal.dueDate && <span className={overdue ? 'overdue' : ''}><CalendarDays size={14} /> {formatDate(goal.dueDate)}{overdue && ' · Trễ hạn'}</span>}
+        {goal.dueDate && <span><CalendarDays size={14} /> {formatDate(goal.dueDate)}</span>}
       </div>
+      {countdownText && <div className={`countdown countdown-${countdownTone}`}><Clock3 size={15} /><strong>{countdownText}</strong></div>}
     </article>
   )
 }
