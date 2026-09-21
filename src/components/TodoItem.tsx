@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { CalendarDays, Check, Pencil, Trash2, X } from 'lucide-react'
+import type { Goal } from '../types/goal'
 import type { Priority, Todo, TodoDraft } from '../types/todo'
 import { formatDate, isOverdue } from '../utils/todoUtils'
 
@@ -8,13 +9,15 @@ interface TodoItemProps {
   onToggle: (id: string) => void
   onDelete: (id: string) => void
   onUpdate: (id: string, draft: TodoDraft) => boolean
+  goals: Goal[]
 }
 
 const priorityLabel = { low: 'Thấp', medium: 'Vừa', high: 'Cao' }
 
-export function TodoItem({ todo, onToggle, onDelete, onUpdate }: TodoItemProps) {
+export function TodoItem({ todo, onToggle, onDelete, onUpdate, goals }: TodoItemProps) {
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState<TodoDraft>({ title: todo.title, priority: todo.priority, category: todo.category, dueDate: todo.dueDate })
+  const [draft, setDraft] = useState<TodoDraft>({ title: todo.title, priority: todo.priority, category: todo.category, dueDate: todo.dueDate, goalId: todo.goalId })
+  const linkedGoal = goals.find((goal) => goal.id === todo.goalId)
 
   const save = (event: FormEvent) => {
     event.preventDefault()
@@ -30,6 +33,10 @@ export function TodoItem({ todo, onToggle, onDelete, onUpdate }: TodoItemProps) 
         </select>
         <input value={draft.category || ''} onChange={(e) => setDraft({ ...draft, category: e.target.value })} placeholder="Danh mục" />
         <input type="date" value={draft.dueDate || ''} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} />
+        <select value={draft.goalId || ''} onChange={(e) => setDraft({ ...draft, goalId: e.target.value })}>
+          <option value="">Không liên kết mục tiêu</option>
+          {goals.map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
+        </select>
       </div>
       <div className="item-actions">
         <button className="save-button" type="submit"><Check size={17} /> Lưu</button>
@@ -48,6 +55,7 @@ export function TodoItem({ todo, onToggle, onDelete, onUpdate }: TodoItemProps) 
         <div className="todo-meta">
           <span className={`badge priority-${todo.priority}`}>{priorityLabel[todo.priority]}</span>
           {todo.category && <span className="badge category">{todo.category}</span>}
+          {linkedGoal && <span className="badge goal-link">↗ {linkedGoal.title}</span>}
           {todo.dueDate && <span className={isOverdue(todo) ? 'overdue' : ''}><CalendarDays size={14} /> {formatDate(todo.dueDate)}{isOverdue(todo) && ' · Quá hạn'}</span>}
         </div>
       </div>

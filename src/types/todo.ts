@@ -9,8 +9,9 @@ export interface Todo {
   priority: Priority
   category?: string
   dueDate?: string
+  goalId?: string
   createdAt: string
   updatedAt?: string
 }
 
-export type TodoDraft = Pick<Todo, 'title' | 'priority' | 'category' | 'dueDate'>
+export type TodoDraft = Pick<Todo, 'title' | 'priority' | 'category' | 'dueDate' | 'goalId'>
