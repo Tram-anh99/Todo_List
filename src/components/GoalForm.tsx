@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Check, X } from 'lucide-react'
 import type { Goal, GoalArea, GoalDraft, GoalPeriod, GoalStatus } from '../types/goal'
-import { areaLabels, periodLabels, statusLabels } from '../utils/goalUtils'
+import { areaLabels, getDeadlineMeta, getGoalPeriodRange, periodLabels, statusLabels } from '../utils/goalUtils'
+import { formatDate } from '../utils/todoUtils'
 
 interface Props {
   goals: Goal[]
@@ -22,6 +23,8 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
     parentId: initial.parentId, status: initial.status, priority: initial.priority, dueDate: initial.dueDate,
   } : createDraft(defaultYear))
   const [error, setError] = useState('')
+  const periodRange = getGoalPeriodRange(draft)
+  const deadlineMeta = getDeadlineMeta(draft)
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -92,6 +95,8 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
         </label>
         <label>Hạn hoàn thành
           <input type="date" value={draft.dueDate || ''} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} />
+          <small className="field-hint">Kỳ mục tiêu: {formatDate(periodRange.start)} – {formatDate(periodRange.end)}</small>
+          {deadlineMeta.periodNote && <small className={deadlineMeta.periodNote.startsWith('Cảnh báo') ? 'field-warning' : 'field-note'}>{deadlineMeta.periodNote}</small>}
         </label>
         <label className="span-2">Mô tả / kết quả mong muốn
           <textarea value={draft.description || ''} onChange={(e) => setDraft({ ...draft, description: e.target.value })} placeholder="Mục tiêu này có ý nghĩa gì và kết quả cần đạt là gì?" />

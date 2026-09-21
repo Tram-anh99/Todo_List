@@ -28,6 +28,7 @@ export function useGoals() {
       description: draft.description?.trim() || undefined,
       parentId: draft.parentId || undefined,
       dueDate: draft.dueDate || undefined,
+      completedAt: draft.status === 'completed' ? new Date().toISOString() : undefined,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     }])
@@ -37,15 +38,20 @@ export function useGoals() {
   const updateGoal = (id: string, draft: GoalDraft) => {
     const title = draft.title.trim()
     if (!title) return false
-    setGoals((current) => current.map((goal) => goal.id === id ? {
-      ...goal,
-      ...draft,
-      title,
-      description: draft.description?.trim() || undefined,
-      parentId: draft.parentId || undefined,
-      dueDate: draft.dueDate || undefined,
-      updatedAt: new Date().toISOString(),
-    } : goal))
+    setGoals((current) => current.map((goal) => {
+      if (goal.id !== id) return goal
+      const now = new Date().toISOString()
+      return {
+        ...goal,
+        ...draft,
+        title,
+        description: draft.description?.trim() || undefined,
+        parentId: draft.parentId || undefined,
+        dueDate: draft.dueDate || undefined,
+        completedAt: draft.status === 'completed' ? (goal.completedAt || now) : undefined,
+        updatedAt: now,
+      }
+    }))
     return true
   }
 

@@ -14,6 +14,9 @@
 - Mục tiêu phân cấp và tự động tổng hợp tiến độ từ mục tiêu con, Todo
 - Kế hoạch tuần, cảnh báo trễ hạn và biểu đồ tiến độ
 - Liên kết từng Todo với mục tiêu cụ thể
+- Deadline được đối chiếu với kỳ mục tiêu và có cảnh báo khi nằm ngoài kỳ
+- Đồng hồ đếm ngược, thông báo hoàn thành sớm, đúng hạn hoặc muộn
+- Mỗi tab chỉ hiển thị đúng cấp mục tiêu năm, quý, tháng hoặc tuần
 
 ## Công nghệ
 

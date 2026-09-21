@@ -15,7 +15,7 @@ function getISOWeek(dateString?: string) {
 }
 
 export function WeeklyPlanner({ goals, todos, week, year }: Props) {
-  const weekGoals = goals.filter((goal) => goal.year === year && (goal.week === week || getISOWeek(goal.dueDate) === week))
+  const weekGoals = goals.filter((goal) => goal.period === 'week' && goal.year === year && (goal.week === week || getISOWeek(goal.dueDate) === week))
   const weekTasks = todos.filter((todo) => {
     if (!todo.dueDate) return false
     return Number(todo.dueDate.slice(0, 4)) === year && getISOWeek(todo.dueDate) === week

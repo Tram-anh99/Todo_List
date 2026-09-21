@@ -41,23 +41,24 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
   const yearGoals = goals.filter((goal) => goal.year === year)
   const displayedGoals = useMemo(() => yearGoals.filter((goal) => {
     if (area !== 'all' && goal.area !== area) return false
+    if (goal.period !== period) return false
     if (period === 'year') return true
-    if (period === 'quarter') return getGoalQuarter(goal) === quarter
+    if (period === 'quarter') return goal.quarter === quarter
     if (period === 'month') return goal.month === month
     return goal.week === week
   }), [yearGoals, area, period, quarter, month, week])
 
-  const rootGoals = yearGoals.filter((goal) => !goal.parentId)
+  const rootGoals = yearGoals.filter((goal) => goal.period === 'year' && !goal.parentId)
   const overallProgress = rootGoals.length ? Math.round(rootGoals.reduce((sum, goal) => sum + progressOf(goal), 0) / rootGoals.length) : 0
-  const completed = yearGoals.filter((goal) => progressOf(goal) === 100 || goal.status === 'completed').length
-  const overdue = yearGoals.filter((goal) => isGoalOverdue(goal, progressOf(goal))).length
+  const completed = displayedGoals.filter((goal) => progressOf(goal) === 100 || goal.status === 'completed').length
+  const overdue = displayedGoals.filter((goal) => isGoalOverdue(goal, progressOf(goal))).length
 
   const quarterData = [1, 2, 3, 4].map((value) => {
-    const group = yearGoals.filter((goal) => getGoalQuarter(goal) === value)
+    const group = yearGoals.filter((goal) => goal.period === 'quarter' && getGoalQuarter(goal) === value)
     return { label: `Q${value}`, count: group.length, value: group.length ? Math.round(group.reduce((sum, goal) => sum + progressOf(goal), 0) / group.length) : 0 }
   })
   const monthData = Array.from({ length: 12 }, (_, index) => index + 1).map((value) => {
-    const group = yearGoals.filter((goal) => goal.month === value)
+    const group = yearGoals.filter((goal) => goal.period === 'month' && goal.month === value)
     return { label: `T${value}`, count: group.length, value: group.length ? Math.round(group.reduce((sum, goal) => sum + progressOf(goal), 0) / group.length) : 0 }
   })
 
@@ -90,7 +91,7 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
 
       <section className="goal-stats">
         <div><span className="stat-icon green"><TrendingUp size={20} /></span><p>Tiến độ năm</p><strong>{overallProgress}%</strong></div>
-        <div><span className="stat-icon blue"><Crosshair size={20} /></span><p>Tổng mục tiêu</p><strong>{yearGoals.length}</strong></div>
+        <div><span className="stat-icon blue"><Crosshair size={20} /></span><p>Mục tiêu đang xem</p><strong>{displayedGoals.length}</strong></div>
         <div><span className="stat-icon teal"><CheckCircle2 size={20} /></span><p>Đã hoàn thành</p><strong>{completed}</strong></div>
         <div><span className="stat-icon orange"><AlertTriangle size={20} /></span><p>Có nguy cơ trễ</p><strong>{overdue}</strong></div>
       </section>
@@ -100,7 +101,7 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
         <section className="panel year-progress-panel">
           <div className="section-heading"><div><h2>Mục tiêu năm {year}</h2><p>Tiến độ được tổng hợp tự động từ mục tiêu con và Todo.</p></div></div>
           <div className="donut" style={{ '--progress': `${overallProgress * 3.6}deg` } as CSSProperties}><div><strong>{overallProgress}%</strong><span>hoàn thành</span></div></div>
-          <div className="year-legend"><span><i className="legend-done" /> Đã hoàn thành: {completed}</span><span><i className="legend-active" /> Còn lại: {Math.max(yearGoals.length - completed, 0)}</span></div>
+          <div className="year-legend"><span><i className="legend-done" /> Mục tiêu năm đã xong: {rootGoals.filter((goal) => progressOf(goal) === 100).length}</span><span><i className="legend-active" /> Còn lại: {Math.max(rootGoals.length - rootGoals.filter((goal) => progressOf(goal) === 100).length, 0)}</span></div>
         </section>
       </div>
 

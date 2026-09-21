@@ -116,6 +116,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .goal-form-grid label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: .74rem; font-weight: 700; }
 .goal-form-grid input, .goal-form-grid select, .goal-form-grid textarea { width: 100%; padding: 10px 11px; }
 .goal-form-grid textarea { min-height: 88px; resize: vertical; }
+.field-hint, .field-note, .field-warning { font-size: .64rem; line-height: 1.35; }
+.field-hint { color: var(--muted); font-weight: 500; }
+.field-note { color: var(--accent); }
+.field-warning { color: var(--danger); }
 .goal-form-grid .span-2 { grid-column: span 2; }
 .form-actions { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
 .goal-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; }
@@ -161,6 +165,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #6fbd97); }
 .goal-footer { color: var(--muted); font-size: .7rem; }
 .goal-footer span { display: flex; align-items: center; gap: 4px; }
+.deadline-period-note { margin: -3px 0 10px; padding: 7px 9px; border-radius: 9px; color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .68rem; font-weight: 700; }
+.deadline-period-note.warning { color: #9b541b; background: #fff0dd; }
+.countdown { display: flex; align-items: center; gap: 6px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: .7rem; }
+.countdown-success { color: var(--accent); }
+.countdown-warning { color: #a35d1f; }
+.countdown-danger { color: var(--danger); }
 .status-dot { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: .66rem; font-weight: 700; }
 .status-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #9aa49e; }
 .status-active::before { background: #3c9b6c; }
