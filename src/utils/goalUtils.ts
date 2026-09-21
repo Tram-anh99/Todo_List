@@ -51,6 +51,10 @@ export function getGoalPeriodRange(goal: Goal | GoalDraft) {
       end: isoDate(new Date(Date.UTC(year, month, 0))),
     }
   }
+  if (goal.period === 'day') {
+    const day = goal.day || `${year}-01-01`
+    return { start: day, end: day }
+  }
   const week = goal.week ?? 1
   const januaryFourth = new Date(Date.UTC(year, 0, 4))
   const day = januaryFourth.getUTCDay() || 7
@@ -59,6 +63,27 @@ export function getGoalPeriodRange(goal: Goal | GoalDraft) {
   const sunday = new Date(monday)
   sunday.setUTCDate(monday.getUTCDate() + 6)
   return { start: isoDate(monday), end: isoDate(sunday) }
+}
+
+export function getISOWeek(dateString: string) {
+  const date = new Date(`${dateString}T12:00:00Z`)
+  const target = new Date(date.valueOf())
+  const dayNumber = (date.getUTCDay() + 6) % 7
+  target.setUTCDate(target.getUTCDate() - dayNumber + 3)
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4))
+  return 1 + Math.round(((target.valueOf() - firstThursday.valueOf()) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7)
+}
+
+export function getISOWeekRange(year: number, week: number) {
+  const januaryFourth = new Date(Date.UTC(year, 0, 4))
+  const day = januaryFourth.getUTCDay() || 7
+  const monday = new Date(januaryFourth)
+  monday.setUTCDate(januaryFourth.getUTCDate() - day + 1 + (week - 1) * 7)
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday)
+    date.setUTCDate(monday.getUTCDate() + index)
+    return isoDate(date)
+  })
 }
 
 function dayDistance(from: string, to: string) {
@@ -98,4 +123,4 @@ export const statusLabels = {
   planned: 'Dự kiến', active: 'Đang thực hiện', completed: 'Hoàn thành', paused: 'Tạm dừng',
 } as const
 
-export const periodLabels = { year: 'Năm', quarter: 'Quý', month: 'Tháng', week: 'Tuần' } as const
+export const periodLabels = { year: 'Năm', quarter: 'Quý', month: 'Tháng', week: 'Tuần', day: 'Ngày' } as const

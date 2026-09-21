@@ -1,4 +1,4 @@
-export type GoalPeriod = 'year' | 'quarter' | 'month' | 'week'
+export type GoalPeriod = 'year' | 'quarter' | 'month' | 'week' | 'day'
 export type GoalStatus = 'planned' | 'active' | 'completed' | 'paused'
 export type GoalArea = 'work' | 'study' | 'health' | 'finance' | 'personal' | 'family' | 'other'
 
@@ -12,6 +12,7 @@ export interface Goal {
   quarter?: number
   month?: number
   week?: number
+  day?: string
   parentId?: string
   status: GoalStatus
   priority: 'low' | 'medium' | 'high'

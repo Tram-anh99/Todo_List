@@ -197,6 +197,17 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .focus-list li small { float: right; color: var(--muted); }
 .muted-item { color: var(--muted); font-size: .78rem; }
 .span-full { grid-column: 1 / -1; }
+.period-detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.period-detail-card { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-soft); }
+.period-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.period-detail-head strong { font-size: .82rem; }
+.period-detail-head span { color: var(--accent); font-size: .72rem; font-weight: 800; }
+.period-detail-card .progress-track { margin: 9px 0 11px; background: var(--surface); }
+.period-detail-card ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.period-detail-card li { display: flex; align-items: flex-start; gap: 6px; min-width: 0; color: var(--muted); font-size: .7rem; line-height: 1.35; }
+.period-detail-card li svg { flex: 0 0 auto; margin-top: 1px; color: var(--accent); }
+.period-detail-card li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.period-detail-card .more-items { color: var(--accent); font-weight: 700; }
 
 @media (max-width: 700px) {
   .app-shell { width: min(100% - 22px, 560px); margin: 26px auto; }
@@ -220,6 +231,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
   .goal-stats { grid-template-columns: repeat(2, 1fr); }
   .dashboard-grid, .goal-grid { grid-template-columns: 1fr; }
   .goal-form-grid { grid-template-columns: repeat(2, 1fr); }
+  .period-detail-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 430px) {
@@ -236,4 +248,5 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
   .bar-chart { gap: 6px; overflow-x: auto; justify-content: flex-start; }
   .bar-column { flex: 0 0 48px; }
   .weekly-summary { grid-template-columns: 1fr; }
+  .period-detail-grid { grid-template-columns: 1fr; }
 }
