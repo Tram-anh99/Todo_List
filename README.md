@@ -16,7 +16,9 @@
 - Liên kết từng Todo với mục tiêu cụ thể
 - Deadline được đối chiếu với kỳ mục tiêu và có cảnh báo khi nằm ngoài kỳ
 - Đồng hồ đếm ngược, thông báo hoàn thành sớm, đúng hạn hoặc muộn
-- Mỗi tab chỉ hiển thị đúng cấp mục tiêu năm, quý, tháng hoặc tuần
+- Mỗi tab chỉ hiển thị đúng cấp mục tiêu năm, quý, tháng, tuần hoặc ngày
+- Theo dõi thêm mục tiêu Ngày trong chuỗi Năm → Quý → Tháng → Tuần → Ngày
+- Biểu đồ chính của thời điểm được đặt đầu tiên, mục tiêu cấp nhỏ hơn hiển thị chi tiết bên dưới
 
 ## Công nghệ
 

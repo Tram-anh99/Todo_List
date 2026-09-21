@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Check, X } from 'lucide-react'
 import type { Goal, GoalArea, GoalDraft, GoalPeriod, GoalStatus } from '../types/goal'
-import { areaLabels, getDeadlineMeta, getGoalPeriodRange, periodLabels, statusLabels } from '../utils/goalUtils'
+import { areaLabels, getDeadlineMeta, getGoalPeriodRange, getISOWeek, periodLabels, statusLabels } from '../utils/goalUtils'
 import { formatDate } from '../utils/todoUtils'
 
 interface Props {
@@ -19,7 +19,7 @@ function createDraft(year: number): GoalDraft {
 export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<GoalDraft>(() => initial ? {
     title: initial.title, description: initial.description, area: initial.area, period: initial.period,
-    year: initial.year, quarter: initial.quarter, month: initial.month, week: initial.week,
+    year: initial.year, quarter: initial.quarter, month: initial.month, week: initial.week, day: initial.day,
     parentId: initial.parentId, status: initial.status, priority: initial.priority, dueDate: initial.dueDate,
   } : createDraft(defaultYear))
   const [error, setError] = useState('')
@@ -31,8 +31,9 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
     const normalized: GoalDraft = {
       ...draft,
       quarter: draft.period === 'year' ? undefined : (draft.quarter ?? Math.ceil((draft.month ?? 1) / 3)),
-      month: ['month', 'week'].includes(draft.period) ? (draft.month ?? 1) : undefined,
-      week: draft.period === 'week' ? (draft.week ?? 1) : undefined,
+      month: ['month', 'week', 'day'].includes(draft.period) ? (draft.month ?? 1) : undefined,
+      week: ['week', 'day'].includes(draft.period) ? (draft.week ?? 1) : undefined,
+      day: draft.period === 'day' ? (draft.day || `${draft.year}-01-01`) : undefined,
     }
     if (!onSave(normalized)) {
       setError('Vui lòng nhập tên mục tiêu.')
@@ -69,13 +70,21 @@ export function GoalForm({ goals, initial, defaultYear, onSave, onCancel }: Prop
             {[1, 2, 3, 4].map((value) => <option key={value} value={value}>Quý {value}</option>)}
           </select>
         </label>}
-        {['month', 'week'].includes(draft.period) && <label>Tháng
+        {['month', 'week', 'day'].includes(draft.period) && <label>Tháng
           <select value={draft.month || 1} onChange={(e) => setDraft({ ...draft, month: Number(e.target.value), quarter: Math.ceil(Number(e.target.value) / 3) })}>
             {Array.from({ length: 12 }, (_, index) => index + 1).map((value) => <option key={value} value={value}>Tháng {value}</option>)}
           </select>
         </label>}
-        {draft.period === 'week' && <label>Tuần trong năm
+        {['week', 'day'].includes(draft.period) && <label>Tuần trong năm
           <input type="number" min="1" max="53" value={draft.week || 1} onChange={(e) => setDraft({ ...draft, week: Number(e.target.value) })} />
+        </label>}
+        {draft.period === 'day' && <label>Ngày mục tiêu
+          <input type="date" value={draft.day || ''} onChange={(e) => {
+            const day = e.target.value
+            if (!day) return setDraft({ ...draft, day: '' })
+            const selectedMonth = Number(day.slice(5, 7))
+            setDraft({ ...draft, day, dueDate: day, year: Number(day.slice(0, 4)), month: selectedMonth, quarter: Math.ceil(selectedMonth / 3), week: getISOWeek(day) })
+          }} />
         </label>}
         <label>Mục tiêu cha
           <select value={draft.parentId || ''} onChange={(e) => setDraft({ ...draft, parentId: e.target.value })}>
