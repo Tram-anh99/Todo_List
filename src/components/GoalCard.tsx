@@ -7,13 +7,14 @@ interface Props {
   goal: Goal
   progress: number
   parent?: Goal
+  ancestors?: Goal[]
   taskCount: number
   childCount?: number
   onEdit: () => void
   onDelete: () => void
 }
 
-export function GoalCard({ goal, progress, parent, taskCount, childCount = 0, onEdit, onDelete }: Props) {
+export function GoalCard({ goal, progress, parent, ancestors = [], taskCount, childCount = 0, onEdit, onDelete }: Props) {
   const deadlineMeta = getDeadlineMeta(goal)
   const countdownText = progress === 100 && !goal.completedAt ? 'Đã hoàn thành' : deadlineMeta.countdown
   const countdownTone = progress === 100 && !goal.completedAt ? 'success' : deadlineMeta.tone
@@ -32,14 +33,14 @@ export function GoalCard({ goal, progress, parent, taskCount, childCount = 0, on
       </div>
       <h3>{goal.title}</h3>
       {goal.description && <p className="goal-description">{goal.description}</p>}
-      {parent && <p className="parent-goal"><ChevronRight size={14} /> Thuộc: {parent.title}</p>}
+      {parent && <p className="parent-goal"><ChevronRight size={14} /> Liên kết: {ancestors.map((item) => item.title).join(' › ')}</p>}
       {goal.period !== 'year' && !parent && <p className="parent-goal missing-link"><ChevronRight size={14} /> Chưa liên kết mục tiêu cha</p>}
       <div className="progress-row"><span>Tiến độ</span><strong>{progress}%</strong></div>
       <div className="progress-track"><span style={{ width: `${progress}%` }} /></div>
       {deadlineMeta.periodNote && <p className={deadlineMeta.periodNote.startsWith('Cảnh báo') ? 'deadline-period-note warning' : 'deadline-period-note'}>{deadlineMeta.periodNote}</p>}
       <div className="goal-footer">
         <span>{taskCount} công việc</span>
-        <span>{childCount} mục tiêu con</span>
+        <span>{childCount} mục tiêu chi tiết</span>
         {goal.dueDate && <span><CalendarDays size={14} /> {formatDate(goal.dueDate)}</span>}
       </div>
       {countdownText && <div className={`countdown countdown-${countdownTone}`}><Clock3 size={15} /><strong>{countdownText}</strong></div>}

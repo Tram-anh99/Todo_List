@@ -39,6 +39,41 @@ export function autoLinkGoalHierarchy(goals: Goal[]) {
   })
 }
 
+export function getGoalAncestors(goal: Goal, goals: Goal[]) {
+  const goalsById = new Map(goals.map((item) => [item.id, item]))
+  const ancestors: Goal[] = []
+  const visited = new Set([goal.id])
+  let parentId = goal.parentId
+
+  while (parentId && !visited.has(parentId)) {
+    const parent = goalsById.get(parentId)
+    if (!parent) break
+    ancestors.unshift(parent)
+    visited.add(parent.id)
+    parentId = parent.parentId
+  }
+
+  return ancestors
+}
+
+export function getGoalDescendants(goalIds: Iterable<string>, goals: Goal[]) {
+  const linkedIds = new Set(goalIds)
+  const descendants = new Set<string>()
+  let changed = true
+
+  while (changed) {
+    changed = false
+    goals.forEach((goal) => {
+      if (!goal.parentId || !linkedIds.has(goal.parentId) || linkedIds.has(goal.id)) return
+      linkedIds.add(goal.id)
+      descendants.add(goal.id)
+      changed = true
+    })
+  }
+
+  return goals.filter((goal) => descendants.has(goal.id))
+}
+
 export function getGoalQuarter(goal: Goal) {
   if (goal.quarter) return goal.quarter
   if (goal.month) return Math.ceil(goal.month / 3)
