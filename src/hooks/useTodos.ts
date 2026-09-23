@@ -29,6 +29,7 @@ export function useTodos() {
         title,
         category: draft.category?.trim() || undefined,
         dueDate: draft.dueDate || undefined,
+        dueTime: draft.dueTime || undefined,
         id: crypto.randomUUID(),
         completed: false,
         createdAt: new Date().toISOString(),
@@ -41,7 +42,7 @@ export function useTodos() {
     const title = draft.title.trim()
     if (!title) return false
     setTodos((current) => current.map((todo) => todo.id === id
-      ? { ...todo, ...draft, title, category: draft.category?.trim() || undefined, dueDate: draft.dueDate || undefined, updatedAt: new Date().toISOString() }
+      ? { ...todo, ...draft, title, category: draft.category?.trim() || undefined, dueDate: draft.dueDate || undefined, dueTime: draft.dueTime || undefined, updatedAt: new Date().toISOString() }
       : todo))
     return true
   }

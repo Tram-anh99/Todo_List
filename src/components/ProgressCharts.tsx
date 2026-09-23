@@ -1,4 +1,4 @@
-interface DataPoint { label: string; value: number; count: number }
+interface DataPoint { label: string; value: number; count: number; goalCount?: number; taskCount?: number }
 
 export function ProgressBars({ title, subtitle, data }: { title: string; subtitle: string; data: DataPoint[] }) {
   return (
@@ -10,7 +10,7 @@ export function ProgressBars({ title, subtitle, data }: { title: string; subtitl
             <span className="bar-value">{item.count ? `${item.value}%` : '—'}</span>
             <div className="bar-track"><span style={{ height: `${Math.max(item.count ? item.value : 2, 2)}%` }} /></div>
             <strong>{item.label}</strong>
-            <small>{item.count} mục tiêu</small>
+            <small>{item.goalCount ?? item.count} mục tiêu · {item.taskCount ?? 0} việc</small>
           </div>
         ))}
       </div>
