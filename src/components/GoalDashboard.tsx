@@ -8,6 +8,7 @@ import { GoalCard } from './GoalCard'
 import { GoalForm } from './GoalForm'
 import { PeriodDetails, type PeriodDetailGroup } from './PeriodDetails'
 import { ProgressBars } from './ProgressCharts'
+import { TaskCountdownTable } from './TaskCountdownTable'
 import { WeeklyPlanner } from './WeeklyPlanner'
 
 interface Props {
@@ -21,10 +22,31 @@ interface Props {
 const today = new Date()
 const currentDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 const childPeriod: Record<GoalPeriod, GoalPeriod | null> = { year: 'quarter', quarter: 'month', month: 'week', week: 'day', day: null }
+const periodOrder: GoalPeriod[] = ['year', 'quarter', 'month', 'week', 'day']
 
 function getWeeksInMonth(year: number, month: number) {
   const lastDay = new Date(year, month, 0).getDate()
   return [...new Set(Array.from({ length: lastDay }, (_, index) => getISOWeek(`${year}-${String(month).padStart(2, '0')}-${String(index + 1).padStart(2, '0')}`)))].sort((a, b) => a - b)
+}
+
+function groupGoalsByPeriod(period: GoalPeriod, goals: Goal[]): PeriodDetailGroup[] {
+  if (period === 'quarter') {
+    const values = [...new Set(goals.map((goal) => goal.quarter).filter((value): value is number => Boolean(value)))].sort((a, b) => a - b)
+    return values.map((value) => ({ key: `linked-quarter-${value}`, label: `Quý ${value}`, goals: goals.filter((goal) => goal.quarter === value) }))
+  }
+  if (period === 'month') {
+    const values = [...new Set(goals.map((goal) => goal.month).filter((value): value is number => Boolean(value)))].sort((a, b) => a - b)
+    return values.map((value) => ({ key: `linked-month-${value}`, label: `Tháng ${value}`, goals: goals.filter((goal) => goal.month === value) }))
+  }
+  if (period === 'week') {
+    const values = [...new Set(goals.map((goal) => goal.week).filter((value): value is number => Boolean(value)))].sort((a, b) => a - b)
+    return values.map((value) => ({ key: `linked-week-${value}`, label: `Tuần ${value}`, goals: goals.filter((goal) => goal.week === value) }))
+  }
+  if (period === 'day') {
+    const values = [...new Set(goals.map((goal) => goal.day).filter((value): value is string => Boolean(value)))].sort()
+    return values.map((value) => ({ key: `linked-day-${value}`, label: `Ngày ${formatDate(value)}`, goals: goals.filter((goal) => goal.day === value) }))
+  }
+  return []
 }
 
 export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props) {
@@ -67,56 +89,47 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
   const linkedDescendants = useMemo(() => getGoalDescendants(displayedGoals.map((goal) => goal.id), goals)
     .filter((goal) => area === 'all' || goal.area === area), [displayedGoals, goals, area])
 
+  const scopedGoals = useMemo(() => [...displayedGoals, ...linkedDescendants], [displayedGoals, linkedDescendants])
+  const linkedDayGoals = useMemo(() => scopedGoals.filter((goal) => goal.period === 'day'), [scopedGoals])
+  const linkedDayGoalIds = useMemo(() => new Set(linkedDayGoals.map((goal) => goal.id)), [linkedDayGoals])
+  const linkedTaskTodos = useMemo(() => todos.filter((todo) => Boolean(todo.goalId && linkedDayGoalIds.has(todo.goalId))), [todos, linkedDayGoalIds])
+
   const detailSections = useMemo(() => {
-    if (period !== 'quarter') {
-      return [{
-        key: childPeriod[period] || 'todos',
-        title: period === 'day' ? 'Công việc liên kết trong ngày' : `Mục tiêu con theo ${childPeriod[period] ? periodLabels[childPeriod[period]!].toLowerCase() : 'công việc'}`,
-        subtitle: period === 'day'
-          ? 'Chỉ hiển thị Todo đã liên kết với mục tiêu Ngày đang xem.'
-          : `Chỉ hiển thị mục tiêu đã liên kết trực tiếp với mục tiêu ${periodLabels[period].toLowerCase()} phía trên.`,
-        groups: childGroups,
-      }]
-    }
+    const currentIndex = periodOrder.indexOf(period)
+    const goalSections = periodOrder.slice(currentIndex + 1).map((targetPeriod, index) => ({
+      key: targetPeriod,
+      title: `Mục tiêu ${periodLabels[targetPeriod]} thuộc ${periodLabels[period]}`,
+      subtitle: index === 0
+        ? `Các mục tiêu ${periodLabels[targetPeriod].toLowerCase()} liên kết trực tiếp với mục tiêu ${periodLabels[period].toLowerCase()} đang xem.`
+        : `Các mục tiêu ${periodLabels[targetPeriod].toLowerCase()} được truy theo toàn bộ chuỗi liên kết từ mục tiêu ${periodLabels[period].toLowerCase()}.`,
+      groups: index === 0 ? childGroups : groupGoalsByPeriod(targetPeriod, linkedDescendants.filter((goal) => goal.period === targetPeriod)),
+    }))
+    const taskGroups: PeriodDetailGroup[] = linkedDayGoals
+      .filter((goal) => goal.day)
+      .sort((a, b) => (a.day || '').localeCompare(b.day || ''))
+      .map((goal) => ({
+        key: `tasks-${goal.id}`,
+        label: `${goal.day ? formatDate(goal.day) : 'Chưa đặt ngày'} · ${goal.title}`,
+        goals: [],
+        todos: linkedTaskTodos.filter((todo) => todo.goalId === goal.id),
+      }))
 
-    const linkedWeeks = linkedDescendants.filter((goal) => goal.period === 'week')
-    const linkedDays = linkedDescendants.filter((goal) => goal.period === 'day' && goal.day)
-    const weekNumbers = [...new Set(linkedWeeks.map((goal) => goal.week).filter((value): value is number => Boolean(value)))].sort((a, b) => a - b)
-    const dates = [...new Set(linkedDays.map((goal) => goal.day).filter((value): value is string => Boolean(value)))].sort()
-
-    return [
-      {
-        key: 'month',
-        title: 'Mục tiêu Tháng thuộc Quý',
-        subtitle: `Các mục tiêu Tháng liên kết trực tiếp với mục tiêu Quý ${quarter}/${year}.`,
-        groups: childGroups,
-      },
-      {
-        key: 'week',
-        title: 'Mục tiêu Tuần thuộc Quý',
-        subtitle: 'Các mục tiêu Tuần được liên kết qua mục tiêu Tháng của Quý đang chọn.',
-        groups: weekNumbers.map((value) => ({
-          key: `quarter-week-${value}`,
-          label: `Tuần ${value}`,
-          goals: linkedWeeks.filter((goal) => goal.week === value),
-        })),
-      },
-      {
-        key: 'day',
-        title: 'Mục tiêu Ngày thuộc Quý',
-        subtitle: 'Các mục tiêu Ngày được liên kết qua chuỗi Quý → Tháng → Tuần.',
-        groups: dates.map((value) => ({
-          key: `quarter-day-${value}`,
-          label: `Ngày ${formatDate(value)}`,
-          goals: linkedDays.filter((goal) => goal.day === value),
-        })),
-      },
-    ]
-  }, [period, childGroups, linkedDescendants, quarter, year])
+    return [...goalSections, {
+      key: 'tasks',
+      title: `Task thuộc mục tiêu Ngày của ${periodLabels[period]}`,
+      subtitle: 'Chỉ hiển thị công việc đã liên kết với các mục tiêu Ngày trong thời điểm đang chọn.',
+      groups: taskGroups,
+    }]
+  }, [period, childGroups, linkedDescendants, linkedDayGoals, linkedTaskTodos])
 
   const chartData = childGroups.map((group) => {
-    const values = [...group.goals.map(progressOf), ...(group.todos || []).map((todo) => todo.completed ? 100 : 0)]
-    return { label: group.label.split(' · ')[0].replace('Quý ', 'Q').replace('Tháng ', 'T').replace('Tuần ', 'W'), count: values.length, value: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0 }
+    const groupGoals = [...group.goals, ...getGoalDescendants(group.goals.map((goal) => goal.id), goals)]
+    const groupGoalIds = new Set(groupGoals.map((goal) => goal.id))
+    const groupTodos = todos.filter((todo) => Boolean(todo.goalId && groupGoalIds.has(todo.goalId)))
+    const directTodos = group.todos || []
+    const uniqueTodos = [...new Map([...groupTodos, ...directTodos].map((todo) => [todo.id, todo])).values()]
+    const values = group.goals.length ? group.goals.map(progressOf) : uniqueTodos.map((todo) => todo.completed ? 100 : 0)
+    return { label: group.label.split(' · ')[0].replace('Quý ', 'Q').replace('Tháng ', 'T').replace('Tuần ', 'W'), count: groupGoals.length + uniqueTodos.length, goalCount: groupGoals.length, taskCount: uniqueTodos.length, value: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0 }
   })
   const periodProgress = displayedGoals.length ? Math.round(displayedGoals.reduce((sum, goal) => sum + progressOf(goal), 0) / displayedGoals.length) : 0
   const completed = displayedGoals.filter((goal) => progressOf(goal) === 100 || goal.status === 'completed').length
@@ -155,7 +168,7 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
       </section>
 
       {showForm && <GoalForm goals={goals} initial={editing} defaultYear={year} onSave={save} onCancel={() => { setShowForm(false); setEditing(undefined) }} />}
-      <ProgressBars title={chartTitle} subtitle={`Biểu đồ chính đứng đầu, tổng hợp tiến độ chi tiết theo ${detailLabel.toLowerCase()}.`} data={chartData} />
+      <ProgressBars title={chartTitle} subtitle={`Biểu đồ chính tổng hợp mục tiêu ${detailLabel.toLowerCase()}, mục tiêu Ngày và các Task liên kết bên dưới.`} data={chartData} />
 
       <section className="goal-stats">
         <div><span className="stat-icon green"><TrendingUp size={20} /></span><p>Tiến độ {periodLabels[period]}</p><strong>{periodProgress}%</strong></div>
@@ -167,11 +180,16 @@ export function GoalDashboard({ goals, todos, onAdd, onUpdate, onDelete }: Props
       <section className="goals-section">
         <div className="section-heading"><div><h2>Mục tiêu {periodLabels[period]}</h2><p>{displayedGoals.length} mục tiêu đúng cấp đang được hiển thị.</p></div></div>
         <div className="goal-grid">
-          {displayedGoals.length ? displayedGoals.map((goal) => <GoalCard key={goal.id} goal={goal} progress={progressOf(goal)} parent={goals.find((item) => item.id === goal.parentId)} ancestors={getGoalAncestors(goal, goals)} taskCount={todos.filter((todo) => todo.goalId === goal.id).length} childCount={getGoalDescendants([goal.id], goals).length} onEdit={() => { setEditing(goal); setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }} onDelete={() => { if (window.confirm(`Xóa mục tiêu “${goal.title}”? Các Todo liên kết sẽ được giữ lại.`)) onDelete(goal.id) }} />) : <div className="empty-state span-full"><span>◎</span><p>Chưa có mục tiêu {periodLabels[period].toLowerCase()} trong thời điểm này.</p><button className="text-button" onClick={openCreate}>Tạo mục tiêu đầu tiên</button></div>}
+          {displayedGoals.length ? displayedGoals.map((goal) => {
+            const descendants = getGoalDescendants([goal.id], goals)
+            const goalIds = new Set([goal.id, ...descendants.map((item) => item.id)])
+            return <GoalCard key={goal.id} goal={goal} progress={progressOf(goal)} parent={goals.find((item) => item.id === goal.parentId)} ancestors={getGoalAncestors(goal, goals)} taskCount={todos.filter((todo) => Boolean(todo.goalId && goalIds.has(todo.goalId))).length} childCount={descendants.length} onEdit={() => { setEditing(goal); setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }} onDelete={() => { if (window.confirm(`Xóa mục tiêu “${goal.title}”? Các Todo liên kết sẽ được giữ lại.`)) onDelete(goal.id) }} />
+          }) : <div className="empty-state span-full"><span>◎</span><p>Chưa có mục tiêu {periodLabels[period].toLowerCase()} trong thời điểm này.</p><button className="text-button" onClick={openCreate}>Tạo mục tiêu đầu tiên</button></div>}
         </div>
       </section>
 
       {period === 'week' && <WeeklyPlanner goals={goals.filter(matchesArea)} todos={todos} week={week} year={year} />}
+      <TaskCountdownTable todos={linkedTaskTodos} goals={linkedDayGoals} periodLabel={chartTitle.replace('Biểu đồ ', '')} />
       {detailSections.map((section) => <PeriodDetails key={section.key} title={section.title} subtitle={section.subtitle} groups={section.groups} getProgress={progressOf} getAncestors={(goal) => getGoalAncestors(goal, goals)} />)}
     </div>
   )

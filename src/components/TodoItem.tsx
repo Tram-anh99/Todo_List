@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { CalendarDays, Check, Pencil, Trash2, X } from 'lucide-react'
 import type { Goal } from '../types/goal'
 import type { Priority, Todo, TodoDraft } from '../types/todo'
-import { formatDate, isOverdue } from '../utils/todoUtils'
+import { formatDate, getTodoCountdown, isOverdue } from '../utils/todoUtils'
 
 interface TodoItemProps {
   todo: Todo
@@ -16,12 +16,14 @@ const priorityLabel = { low: 'Thấp', medium: 'Vừa', high: 'Cao' }
 
 export function TodoItem({ todo, onToggle, onDelete, onUpdate, goals }: TodoItemProps) {
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState<TodoDraft>({ title: todo.title, priority: todo.priority, category: todo.category, dueDate: todo.dueDate, goalId: todo.goalId })
+  const [draft, setDraft] = useState<TodoDraft>({ title: todo.title, priority: todo.priority, category: todo.category, dueDate: todo.dueDate, dueTime: todo.dueTime, goalId: todo.goalId })
   const linkedGoal = goals.find((goal) => goal.id === todo.goalId)
+  const countdown = getTodoCountdown(todo)
 
   const save = (event: FormEvent) => {
     event.preventDefault()
-    if (onUpdate(todo.id, draft)) setEditing(false)
+    const selectedGoal = goals.find((goal) => goal.id === draft.goalId)
+    if (onUpdate(todo.id, { ...draft, dueDate: selectedGoal?.day || draft.dueDate })) setEditing(false)
   }
 
   if (editing) return (
@@ -33,9 +35,15 @@ export function TodoItem({ todo, onToggle, onDelete, onUpdate, goals }: TodoItem
         </select>
         <input value={draft.category || ''} onChange={(e) => setDraft({ ...draft, category: e.target.value })} placeholder="Danh mục" />
         <input type="date" value={draft.dueDate || ''} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} />
-        <select value={draft.goalId || ''} onChange={(e) => setDraft({ ...draft, goalId: e.target.value })}>
+        <input type="time" value={draft.dueTime || ''} onChange={(e) => setDraft({ ...draft, dueTime: e.target.value })} />
+        <select value={draft.goalId || ''} onChange={(e) => {
+          const nextGoalId = e.target.value
+          const nextGoal = goals.find((goal) => goal.id === nextGoalId)
+          setDraft({ ...draft, goalId: nextGoalId, dueDate: nextGoal?.day || draft.dueDate })
+          }}>
           <option value="">Không liên kết mục tiêu</option>
-          {goals.map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
+          {linkedGoal && linkedGoal.period !== 'day' && <option value={linkedGoal.id}>{linkedGoal.title} · liên kết cũ</option>}
+          {goals.filter((goal) => goal.period === 'day').map((goal) => <option key={goal.id} value={goal.id}>{goal.day ? `${goal.day} · ` : ''}{goal.title}</option>)}
         </select>
       </div>
       <div className="item-actions">
@@ -56,7 +64,8 @@ export function TodoItem({ todo, onToggle, onDelete, onUpdate, goals }: TodoItem
           <span className={`badge priority-${todo.priority}`}>{priorityLabel[todo.priority]}</span>
           {todo.category && <span className="badge category">{todo.category}</span>}
           {linkedGoal && <span className="badge goal-link">↗ {linkedGoal.title}</span>}
-          {todo.dueDate && <span className={isOverdue(todo) ? 'overdue' : ''}><CalendarDays size={14} /> {formatDate(todo.dueDate)}{isOverdue(todo) && ' · Quá hạn'}</span>}
+          {todo.dueDate && <span className={isOverdue(todo) ? 'overdue' : ''}><CalendarDays size={14} /> {formatDate(todo.dueDate)}{todo.dueTime ? ` ${todo.dueTime}` : ''}{isOverdue(todo) && ' · Quá hạn'}</span>}
+          <span className={`countdown-inline countdown-${countdown.tone}`}>{countdown.label}</span>
         </div>
       </div>
       <div className="item-actions compact">

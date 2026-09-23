@@ -22,6 +22,9 @@
 - Mục tiêu con bắt buộc liên kết với đúng cấp cha liền kề; tiến độ chỉ tổng hợp qua liên kết cha–con
 - Thẻ mục tiêu Quý liên kết với mục tiêu Năm và tổng hợp đầy đủ các mục tiêu Tháng, Tuần, Ngày thuộc đúng Quý
 - Đường dẫn Năm → Quý → Tháng → Tuần → Ngày được hiển thị trên từng mục tiêu chi tiết
+- Mọi thẻ Năm, Quý, Tháng, Tuần đều truy được mục tiêu Ngày và Task liên kết bên dưới
+- Biểu đồ tổng hợp tiến độ xuyên suốt từ mục tiêu cấp cao đến Task của mục tiêu Ngày
+- Bảng đếm ngược deadline Task theo ngày, giờ; tự cập nhật mỗi phút và cảnh báo quá hạn
 
 ## Công nghệ
 

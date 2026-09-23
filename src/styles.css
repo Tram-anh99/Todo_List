@@ -56,6 +56,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .primary-button:hover, .save-button:hover { background: var(--accent-dark); }
 .task-options { display: grid; grid-template-columns: .8fr 1.4fr 1fr; gap: 10px; margin-top: 14px; }
 .task-options.four-columns { grid-template-columns: .7fr 1.1fr .9fr 1.3fr; }
+.task-options.five-columns { grid-template-columns: .65fr 1fr .85fr .7fr 1.35fr; }
 .task-options label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: .75rem; font-weight: 700; }
 .task-options input, .task-options select { width: 100%; padding: 10px 12px; }
 .form-error { margin: 10px 0 0; color: var(--danger); font-size: .84rem; }
@@ -87,7 +88,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .text-button { display: inline-flex; align-items: center; gap: 6px; padding: 8px; border: 0; color: var(--muted); background: transparent; font-weight: 700; }
 .edit-card { align-items: stretch; flex-direction: column; }
 .edit-title { width: 100%; padding: 11px 12px; }
-.edit-options { display: grid; grid-template-columns: .7fr 1fr .9fr 1.4fr; gap: 8px; }
+.edit-options { display: grid; grid-template-columns: .65fr 1fr .85fr .7fr 1.35fr; gap: 8px; }
 .edit-options input, .edit-options select { width: 100%; padding: 9px 10px; }
 .empty-state { padding: 52px 24px; text-align: center; color: var(--muted); background: var(--surface); border: 1px dashed var(--border); border-radius: 16px; }
 .empty-state span { display: grid; place-items: center; width: 42px; height: 42px; margin: auto; color: var(--accent); background: color-mix(in srgb, var(--accent) 13%, transparent); border-radius: 50%; font-weight: 800; }
@@ -173,6 +174,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .countdown-success { color: var(--accent); }
 .countdown-warning { color: #a35d1f; }
 .countdown-danger { color: var(--danger); }
+.countdown-inline { font-weight: 700; }
 .status-dot { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: .66rem; font-weight: 700; }
 .status-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #9aa49e; }
 .status-active::before { background: #3c9b6c; }
@@ -212,13 +214,25 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .period-detail-card li b { overflow: hidden; color: var(--text); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
 .period-detail-card li small { overflow: hidden; color: var(--muted); font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
 .period-detail-card .more-items { color: var(--accent); font-weight: 700; }
+.countdown-total { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: .72rem; font-weight: 800; }
+.countdown-table-wrap { overflow-x: auto; }
+.countdown-table { width: 100%; min-width: 760px; border-collapse: collapse; }
+.countdown-table th, .countdown-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; font-size: .74rem; }
+.countdown-table th { color: var(--muted); background: var(--surface-soft); font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; }
+.countdown-table td:nth-child(2) { display: table-cell; }
+.countdown-table td:nth-child(2) b, .countdown-table td:nth-child(2) small { display: block; }
+.countdown-table td:nth-child(2) small { margin-top: 2px; color: var(--muted); }
+.countdown-status { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; white-space: nowrap; }
+.countdown-table .completed-row { opacity: .65; }
+.countdown-table .completed-row strong { text-decoration: line-through; }
+.countdown-table .missing-link { display: inline-flex; align-items: center; gap: 4px; color: var(--danger); }
 
 @media (max-width: 700px) {
   .app-shell { width: min(100% - 22px, 560px); margin: 26px auto; }
   .stats div { padding: 14px; }
   .stats strong { font-size: 1.45rem; }
   .main-input-row, .controls, .control-fields { align-items: stretch; flex-direction: column; }
-  .task-options, .task-options.four-columns, .edit-options { grid-template-columns: 1fr; }
+  .task-options, .task-options.four-columns, .task-options.five-columns, .edit-options { grid-template-columns: 1fr; }
   .filters { align-self: stretch; overflow-x: auto; }
   .filters button { flex: 1; white-space: nowrap; }
   .search-field { min-width: 0; }

@@ -1,6 +1,7 @@
 import { CheckCircle2, Circle } from 'lucide-react'
 import type { Goal } from '../types/goal'
 import type { Todo } from '../types/todo'
+import { formatDate, getTodoCountdown } from '../utils/todoUtils'
 
 export interface PeriodDetailGroup {
   key: string
@@ -37,7 +38,10 @@ export function PeriodDetails({ title, subtitle, groups, getProgress, getAncesto
                   const ancestors = getAncestors(goal)
                   return <li key={goal.id}>{getProgress(goal) === 100 ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span><b>{goal.title}</b><small>{ancestors.length ? `Liên kết: ${ancestors.map((item) => item.title).join(' › ')}` : 'Chưa liên kết mục tiêu cha'}</small></span></li>
                 })}
-                {(group.todos || []).slice(0, 4).map((todo) => <li key={todo.id}>{todo.completed ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span>{todo.title}</span></li>)}
+                {(group.todos || []).slice(0, 4).map((todo) => {
+                  const countdown = getTodoCountdown(todo)
+                  return <li key={todo.id}>{todo.completed ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span><b>{todo.title}</b><small>{todo.dueDate ? `${formatDate(todo.dueDate)}${todo.dueTime ? ` ${todo.dueTime}` : ' 23:59'} · ` : ''}{countdown.label}</small></span></li>
+                })}
                 {!itemCount && <li className="muted-item">Chưa có mục tiêu chi tiết.</li>}
                 {itemCount > 4 && <li className="more-items">+{itemCount - 4} mục khác</li>}
               </ul>
