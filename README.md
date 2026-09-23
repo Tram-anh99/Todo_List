@@ -20,6 +20,8 @@
 - Theo dõi thêm mục tiêu Ngày trong chuỗi Năm → Quý → Tháng → Tuần → Ngày
 - Biểu đồ chính của thời điểm được đặt đầu tiên, mục tiêu cấp nhỏ hơn hiển thị chi tiết bên dưới
 - Mục tiêu con bắt buộc liên kết với đúng cấp cha liền kề; tiến độ chỉ tổng hợp qua liên kết cha–con
+- Thẻ mục tiêu Quý liên kết với mục tiêu Năm và tổng hợp đầy đủ các mục tiêu Tháng, Tuần, Ngày thuộc đúng Quý
+- Đường dẫn Năm → Quý → Tháng → Tuần → Ngày được hiển thị trên từng mục tiêu chi tiết
 
 ## Công nghệ
 

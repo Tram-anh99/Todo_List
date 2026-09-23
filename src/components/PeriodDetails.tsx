@@ -14,14 +14,14 @@ interface Props {
   subtitle: string
   groups: PeriodDetailGroup[]
   getProgress: (goal: Goal) => number
-  getParent: (goal: Goal) => Goal | undefined
+  getAncestors: (goal: Goal) => Goal[]
 }
 
-export function PeriodDetails({ title, subtitle, groups, getProgress, getParent }: Props) {
+export function PeriodDetails({ title, subtitle, groups, getProgress, getAncestors }: Props) {
   return (
     <section className="panel period-details">
       <div className="section-heading"><div><h2>{title}</h2><p>{subtitle}</p></div></div>
-      <div className="period-detail-grid">
+      {groups.length ? <div className="period-detail-grid">
         {groups.map((group) => {
           const goalValues = group.goals.map(getProgress)
           const todoValues = (group.todos || []).map((todo) => todo.completed ? 100 : 0)
@@ -34,8 +34,8 @@ export function PeriodDetails({ title, subtitle, groups, getProgress, getParent 
               <div className="progress-track"><span style={{ width: `${progress}%` }} /></div>
               <ul>
                 {group.goals.slice(0, 4).map((goal) => {
-                  const parent = getParent(goal)
-                  return <li key={goal.id}>{getProgress(goal) === 100 ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span><b>{goal.title}</b><small>{parent ? `Thuộc: ${parent.title}` : 'Chưa liên kết mục tiêu cha'}</small></span></li>
+                  const ancestors = getAncestors(goal)
+                  return <li key={goal.id}>{getProgress(goal) === 100 ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span><b>{goal.title}</b><small>{ancestors.length ? `Liên kết: ${ancestors.map((item) => item.title).join(' › ')}` : 'Chưa liên kết mục tiêu cha'}</small></span></li>
                 })}
                 {(group.todos || []).slice(0, 4).map((todo) => <li key={todo.id}>{todo.completed ? <CheckCircle2 size={14} /> : <Circle size={14} />}<span>{todo.title}</span></li>)}
                 {!itemCount && <li className="muted-item">Chưa có mục tiêu chi tiết.</li>}
@@ -44,7 +44,7 @@ export function PeriodDetails({ title, subtitle, groups, getProgress, getParent 
             </article>
           )
         })}
-      </div>
+      </div> : <div className="empty-state"><span>◎</span><p>Chưa có mục tiêu liên kết ở cấp này.</p></div>}
     </section>
   )
 }
