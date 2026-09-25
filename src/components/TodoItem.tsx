@@ -64,6 +64,7 @@ export function TodoItem({ todo, onToggle, onDelete, onUpdate, goals }: TodoItem
           <span className={`badge priority-${todo.priority}`}>{priorityLabel[todo.priority]}</span>
           {todo.category && <span className="badge category">{todo.category}</span>}
           {linkedGoal && <span className="badge goal-link">↗ {linkedGoal.title}</span>}
+          {!linkedGoal && todo.dueDate && <span className="badge goal-link fallback-link">↗ Tự xếp theo deadline</span>}
           {todo.dueDate && <span className={isOverdue(todo) ? 'overdue' : ''}><CalendarDays size={14} /> {formatDate(todo.dueDate)}{todo.dueTime ? ` ${todo.dueTime}` : ''}{isOverdue(todo) && ' · Quá hạn'}</span>}
           <span className={`countdown-inline countdown-${countdown.tone}`}>{countdown.label}</span>
         </div>

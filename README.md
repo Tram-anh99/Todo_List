@@ -25,6 +25,7 @@
 - Mọi thẻ Năm, Quý, Tháng, Tuần đều truy được mục tiêu Ngày và Task liên kết bên dưới
 - Biểu đồ tổng hợp tiến độ xuyên suốt từ mục tiêu cấp cao đến Task của mục tiêu Ngày
 - Bảng đếm ngược deadline Task theo ngày, giờ; tự cập nhật mỗi phút và cảnh báo quá hạn
+- Task cũ chưa gắn mục tiêu Ngày được tự xếp vào Năm, Quý, Tháng, Tuần và Ngày theo deadline
 
 ## Công nghệ
 

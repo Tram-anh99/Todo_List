@@ -188,6 +188,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .area-family { color: #9a5331; background: #f7e7dc; }
 .area-other { color: var(--muted); background: var(--surface-soft); }
 .goal-link { max-width: 210px; overflow: hidden; color: var(--accent); text-overflow: ellipsis; white-space: nowrap; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.goal-link.fallback-link { color: #8a631d; background: #f9edce; }
 .weekly-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
 .weekly-summary > div { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 8px; padding: 12px; border-radius: 12px; background: var(--surface-soft); }
 .weekly-summary svg { grid-row: span 2; color: var(--accent); }
@@ -226,6 +227,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .countdown-table .completed-row { opacity: .65; }
 .countdown-table .completed-row strong { text-decoration: line-through; }
 .countdown-table .missing-link { display: inline-flex; align-items: center; gap: 4px; color: var(--danger); }
+.countdown-table .deadline-link { display: inline-flex; align-items: center; gap: 4px; color: #8a631d; }
 
 @media (max-width: 700px) {
   .app-shell { width: min(100% - 22px, 560px); margin: 26px auto; }

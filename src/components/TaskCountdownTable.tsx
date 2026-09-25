@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, CheckCircle2, Clock3 } from 'lucide-react'
+import { CheckCircle2, Clock3 } from 'lucide-react'
 import type { Goal } from '../types/goal'
 import type { Todo } from '../types/todo'
+import { periodLabels } from '../utils/goalUtils'
 import { formatDate, getTodoCountdown } from '../utils/todoUtils'
 
 interface Props {
@@ -28,23 +29,23 @@ export function TaskCountdownTable({ todos, goals, periodLabel }: Props) {
   return (
     <section className="panel countdown-board">
       <div className="section-heading">
-        <div><h2>Đếm ngược công việc mục tiêu Ngày</h2><p>Các Task thuộc mục tiêu Ngày trong {periodLabel}; đồng hồ tự cập nhật mỗi phút.</p></div>
+        <div><h2>Đếm ngược công việc</h2><p>Task liên kết mục tiêu hoặc tự xếp theo deadline trong {periodLabel}; đồng hồ tự cập nhật mỗi phút.</p></div>
         <span className="countdown-total"><Clock3 size={16} /> {rows.filter((todo) => !todo.completed).length} việc chưa xong</span>
       </div>
       {rows.length ? <div className="countdown-table-wrap"><table className="countdown-table">
-        <thead><tr><th>Công việc</th><th>Mục tiêu Ngày</th><th>Hạn chót</th><th>Ưu tiên</th><th>Thời gian còn lại</th></tr></thead>
+        <thead><tr><th>Công việc</th><th>Nguồn liên kết</th><th>Hạn chót</th><th>Ưu tiên</th><th>Thời gian còn lại</th></tr></thead>
         <tbody>{rows.map((todo) => {
           const goal = goals.find((item) => item.id === todo.goalId)
           const countdown = getTodoCountdown(todo, now)
           return <tr key={todo.id} className={todo.completed ? 'completed-row' : ''}>
             <td><strong>{todo.title}</strong></td>
-            <td>{goal ? <><b>{goal.title}</b><small>{goal.day ? formatDate(goal.day) : 'Chưa đặt ngày'}</small></> : <span className="missing-link"><AlertTriangle size={14} /> Mất liên kết</span>}</td>
+            <td>{goal ? <><b>{goal.title}</b><small>Mục tiêu {periodLabels[goal.period]}{goal.day ? ` · ${formatDate(goal.day)}` : ' · xếp theo deadline'}</small></> : <><b className="deadline-link"><Clock3 size={14} /> Theo deadline</b><small>Chưa liên kết mục tiêu Ngày</small></>}</td>
             <td>{todo.dueDate ? `${formatDate(todo.dueDate)}${todo.dueTime ? ` · ${todo.dueTime}` : ' · 23:59'}` : 'Chưa đặt hạn'}</td>
             <td><span className={`badge priority-${todo.priority}`}>{priorityLabels[todo.priority]}</span></td>
             <td><span className={`countdown-status countdown-${countdown.tone}`}>{todo.completed && <CheckCircle2 size={14} />}{countdown.label}</span></td>
           </tr>
         })}</tbody>
-      </table></div> : <div className="empty-state"><span>◷</span><p>Chưa có Task liên kết với mục tiêu Ngày trong thời điểm này.</p></div>}
+      </table></div> : <div className="empty-state"><span>◷</span><p>Chưa có Task liên kết hoặc có deadline trong thời điểm này.</p></div>}
     </section>
   )
 }
